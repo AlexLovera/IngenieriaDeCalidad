@@ -1,0 +1,111 @@
+image: openjdk:17-jdk-alpine
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=true -Dorg.gradle.caching=true"
+
+stages:
+  - build
+  - analyze
+  - test
+  - report
+  - package
+  - deploy
+
+before_script:
+  - export GRADLE_USER_HOME=cache/
+
+cache:
+  paths:
+    - cache/caches/
+    - cache/notifications/
+    - cache/wrapper/
+    - cache/build-cache/
+
+build:
+  stage: build
+  script:
+    - ./gradlew --build-cache assemble --info
+  artifacts:
+    when: on_success
+    paths:
+      - build/classes
+
+unit-test:
+  stage: test
+  script:
+    - ./gradlew test --info
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/test/**/TEST-*.xml
+    paths:
+      - build/jacoco
+      - build/reports/tests/test
+
+integration-test:
+  stage: test
+  script:
+    - ./gradlew integrationTest --info
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/integrationTest/**/TEST-*.xml
+    paths:
+      - build/jacoco
+      - build/reports/tests/integrationTest
+
+ui-test:
+  stage: test
+  script:
+    - export CHROME_OPTIONS=--headless
+    - ./gradlew uiTest --info
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/uiTest/**/TEST-*.xml
+    paths:
+      - build/jacoco
+      - build/reports/tests/uiTest
+
+acceptance-test:
+  stage: test
+  script:
+    - export CHROME_OPTIONS=--headless
+    - ./gradlew acceptanceTest --info
+  artifacts:
+    when: always
+    reports:
+      junit: build/test-results/acceptanceTest/**/TEST-*.xml
+    paths:
+      - build/jacoco
+      - build/reports/tests/acceptanceTest
+      - build/reports/acceptance.html
+
+package:
+  stage: package
+  script:
+    - echo "Packaging"
+
+report-test-coverage:
+  stage: report
+  script:
+    - ./gradlew jacocoTestReport --info
+  artifacts:
+    when: always
+    paths:
+      - build/reports/jacoco
+
+static-source-code-analysis:
+  stage: analyze
+  script:
+    - ./gradlew pmdMain
+  artifacts:
+    when: always
+    paths:
+      - build/reports/pmd
+
+deploy-dev:
+  stage: deploy
+  script:
+    - echo "Deploying application to DEV..."
+    - echo "Application successfully deployed."

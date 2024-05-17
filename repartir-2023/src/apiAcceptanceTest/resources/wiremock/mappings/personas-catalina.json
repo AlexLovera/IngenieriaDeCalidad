@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "url": "/personas/catalina"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "id": "catalina",
+      "correo": "catalina@repartir.com",
+      "nombre": "Catalina",
+      "documento": "37822857"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
