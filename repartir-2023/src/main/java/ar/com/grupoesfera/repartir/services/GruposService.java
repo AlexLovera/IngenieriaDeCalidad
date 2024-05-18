@@ -2,6 +2,7 @@ package ar.com.grupoesfera.repartir.services;
 
 import ar.com.grupoesfera.repartir.exceptions.GrupoInvalidoException;
 import ar.com.grupoesfera.repartir.exceptions.GrupoNoEncontradoException;
+import ar.com.grupoesfera.repartir.exceptions.MontoDeGastoInvalidoException;
 import ar.com.grupoesfera.repartir.model.Gasto;
 import ar.com.grupoesfera.repartir.model.Grupo;
 import ar.com.grupoesfera.repartir.repositories.GruposRepository;
@@ -9,6 +10,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +56,8 @@ public class GruposService {
     }
 
     public Grupo agregarGasto(Long id, Gasto gasto) {
+        if(gasto.getMonto().compareTo(BigDecimal.ZERO) <= 0)
+            throw new MontoDeGastoInvalidoException("El monto del gasto debe mayor a 0");
 
         Grupo grupo = recuperar(id);
         montos.acumularAlTotal(grupo, gasto);
