@@ -56,10 +56,11 @@ public class GruposService {
     }
 
     public Grupo agregarGasto(Long id, Gasto gasto) {
+        Grupo grupo = recuperar(id);
+
         if(gasto.getMonto().compareTo(BigDecimal.ZERO) <= 0)
             throw new MontoDeGastoInvalidoException("El monto del gasto debe mayor a 0");
 
-        Grupo grupo = recuperar(id);
         montos.acumularAlTotal(grupo, gasto);
         repository.save(grupo);
         return grupo;
